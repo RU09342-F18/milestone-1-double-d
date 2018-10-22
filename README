@@ -1,1 +1,157 @@
-README
+THIS README IS NOT FINISHED YET
+
+***************************************************************************************************************************************
+OVERVIEW
+--------
+
+[A couple sentences overviewing what this project is. Include: (i) what it does--change color brightness, link with other boards, 
+(ii) stranger things background (iii) what board it uses--MSP430F5529]
+
+Milestone 1 is a program that uses UART to control the color and intensity of an RGB LED. toggles an LED using a timer. Instead of using infinite loops to count, Timer A Blink outsource the
+counting to Timer A and uses an interrupt vector that triggers when The value in Timer A reaches a specified value. This allows the 
+processor to go into low-power in between toggling the LED.
+
+[Previews next sections: General Design, Initializations, Software PWM interrupts, UART interrupts, external circuitry]
+
+Specifications, General Design (global variables, functions, interrupts), Initializations, Software PWM interrupts, UART interrupts,
+external circuitry
+
+***************************************************************************************************************************************
+SPECIFICATIONS
+--------------
+
+In order to execute this program:
+- certain pins on each processor are routed to LEDs on the development board
+- these pins are configured and initialized as GPIO--LEDs as outputs
+- an interupt must be enabled on the positive edge of the button press
+- timer A capture control must be set to capture compare interrupt enable (CCIE)
+- timer A control configured using the Secondary Master Clock in continuous mode with an internal divider of 8
+- timer A capture control register 0 must be set to a value to count to 10,000 (decimal)
+- at the end of initialization, the processor must go into low-power mode
+- outside the main function, an interrupt vector must be declared, which toggles the LED
+ _______________________________________________________________________________________________
+| Byte no. |                  Contents                  |                Example                |
+|----------|--------------------------------------------|---------------------------------------|
+|    0     | Number of bytes (N) not including this bit |            0x06 (6 bytes)             |
+| 1 to N-1 |          RGB Colors for each node          | 0xFF (red), 0x00 (green), 0x7F (blue) |
+|__________|____________________________________________|_______________________________________|
+
+***************************************************************************************************************************************
+GENERAL DESIGN
+--------------
+
+In order to execute this program:
+- certain pins on each processor are routed to LEDs on the development board
+- these pins are configured and initialized as GPIO--LEDs as outputs
+- an interupt must be enabled on the positive edge of the button press
+- timer A capture control must be set to capture compare interrupt enable (CCIE)
+- timer A control configured using the Secondary Master Clock in continuous mode with an internal divider of 8
+- timer A capture control register 0 must be set to a value to count to 10,000 (decimal)
+- at the end of initialization, the processor must go into low-power mode
+- outside the main function, an interrupt vector must be declared, which toggles the LED
+
+Global Variables
+- i     : unsigned char : tracks how many bytes left to process for USB-to-pin UART interaction
+- j     : unsigned char : tracks how many bytes left to process for pin-to-pin UART interaction
+- state : unsigned char : tracks how to process each byte, whether to read package size, RGB intensity, or to pass along the byte
+
+Setup Functions
+- void externalRGBLEDsetup() : configures the MSP430F5529 pins to interface with RGB LEDs external to the development board
+- void timerA0Setup()        : 
+- void UARTsetup()           :
+
+Interrupt Vectors
+- TIMER0_A0_VECTOR
+- TIMER0_A1_VECTOR
+- USCI_A1_VECTOR
+- USCI_A0_VECTOR
+
+***************************************************************************************************************************************
+INITIALIZATIONS
+---------------
+
+externalRGBLEDsetup()
+- stuff
+
+timerA0Setup()
+- stuff
+
+UARTsetup()
+- stuff
+
+- P1.0 is the pin routed to the LED (D1)
+- Bit 0 of P1SEL, P1DIR, and P1OUT are initialized accordingly
+- TACCL0 is set to CCIE, enabling an interrupt when the value in TA0R equals the value stored in TACCR0
+- after initialization, the processor goes to into low-power mode with the following code: _BIS_SR(LPM0_bits + GIE);
+- outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_A0_VECTOR
+- an interrupt function, which toggles P1.0 (D1) is defined with the following code: __interrupt void TIMER0_A0(void)
+
+***************************************************************************************************************************************
+SOFTWARE-PWM INTERRUPTS
+-----------------------
+
+Blurb
+
+TIMER0_A0
+- stuff
+
+TIMER0_A1
+- stuff
+
+
+- the follwing code must be added to disable GPIO power-on default Hi-Z mode to use the ports: PM5CTL0 &= ~LOCKLPM5;
+- P1.0 is the pin routed to the LED (LED1)
+- Bit 0 of P1SEL, P1DIR, and P1OUT are initialized accordingly
+- TBCCL0 is set to CCIE, enabling an interrupt when the value in TB0R equals the value stored in TBCCR0
+- after initialization, the processor goes to into low-power mode with the following code: _BIS_SR(LPM1_bits + GIE);
+- outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_B0_VECTOR
+- an interrupt function, which toggles P1.0 (KED1) is defined with the following code: __interrupt void TIMER0_B0(void)
+
+***************************************************************************************************************************************
+UART INTERRUPTS
+---------------
+
+Blurb
+
+USCI_A1_interrupt
+- stuff
+
+USCI_A0_interrupt
+- stuff
+
+- the follwing code must be added to disable GPIO power-on default Hi-Z mode to use the ports: PM5CTL0 &= ~LOCKLPM5;
+- P1.0 is the pin routed to the LED (LED1)
+- Bit 0 of P1SEL, P1DIR, and P1OUT are initialized accordingly
+- TBCCL0 is set to CCIE, enabling an interrupt when the value in TB0R equals the value stored in TBCCR0
+- after initialization, the processor goes to into low-power mode with the following code: _BIS_SR(LPM1_bits + GIE);
+- outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_B0_VECTOR
+- an interrupt function, which toggles P1.0 (KED1) is defined with the following code: __interrupt void TIMER0_B0(void)
+
+***************************************************************************************************************************************
+EXTERNAL CIRCUITRY
+------------------
+
+   MSP430F5529 Pinout for Pins Used                List of Parts for 
+ _____________________________________             _______________________________________________
+| Pin No. | Port | Description        |           | Label   |   PN    | Description | Connections |
+|---------|------|--------------------|           |---------|---------|-------------|
+| 1       | NA   | Vcc                |           |   R1    |    -    |   300 Ohm   |        
+| 2       | P1.0 | Feeds to Green LED |           |   R2    |    -    |   195 Ohm   |
+| 14      | P1.6 | Feeds to Red LED   |           |   R3    |    -    |   150 Ohm   |
+| 16      | ~RST | Feeds to Button    |           |  R4-6   |    -    |   100 kOhm  |
+| 20      | NA   | Vss                |           |   Q1    | 2N7000  |   N-MOS     |
+|_________|______|____________________|           |   Q2    | 2N7000  |   N-MOS     |
+                                                  |   Q3    | 2N7000  |   N-MOS     |
+                                                  | RGBLED  |    -    |   N-MOS     |
+                                                  |_________|_________|_____________|_____________
+
+Circuit Design
+- the follwing code must be added to disable GPIO power-on default Hi-Z mode to use the ports: PM5CTL0 &= ~LOCKLPM5;
+- P1.0 is the pin routed to the LED (LED1)
+- Bit 0 of P1SEL, P1DIR, and P1OUT are initialized accordingly
+- TBCCL0 is set to CCIE, enabling an interrupt when the value in TB0R equals the value stored in TBCCR0
+- after initialization, the processor goes to into low-power mode with the following code: _BIS_SR(LPM1_bits + GIE);
+- outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_B0_VECTOR
+- an interrupt function, which toggles P1.0 (KED1) is defined with the following code: __interrupt void TIMER0_B0(void)
+
+***************************************************************************************************************************************
