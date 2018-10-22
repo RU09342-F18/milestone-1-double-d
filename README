@@ -10,6 +10,7 @@ Additional data received (if any) can be transmitted via pin to another MSP430 d
 This functionality is based on how the fictional character, Will Byers from STRANGER THINGS, communicated with his mother while using
 string lights.
 
+First, the specifications are discussed. Then 
 [Previews next sections: General Design, Initializations, Software PWM interrupts, UART interrupts, external circuitry]
 
 Specifications, General Design (global variables, functions, interrupts), Initializations, Software PWM interrupts, UART interrupts,
@@ -18,16 +19,9 @@ external circuitry
 ***************************************************************************************************************************************
 SPECIFICATIONS
 --------------
+[Discuss: (i) where info is coming from and what format it will be in; (ii) how the dev board should handle that information]
 
-In order to execute this program:
-- certain pins on each processor are routed to LEDs on the development board
-- these pins are configured and initialized as GPIO--LEDs as outputs
-- an interupt must be enabled on the positive edge of the button press
-- timer A capture control must be set to capture compare interrupt enable (CCIE)
-- timer A control configured using the Secondary Master Clock in continuous mode with an internal divider of 8
-- timer A capture control register 0 must be set to a value to count to 10,000 (decimal)
-- at the end of initialization, the processor must go into low-power mode
-- outside the main function, an interrupt vector must be declared, which toggles the LED
+
  _______________________________________________________________________________________________
 | Byte no. |                  Contents                  |                Example                |
 |----------|--------------------------------------------|---------------------------------------|
@@ -39,6 +33,7 @@ In order to execute this program:
 GENERAL DESIGN
 --------------
 
+[Discuss: (i) 
 In order to execute this program:
 - certain pins on each processor are routed to LEDs on the development board
 - these pins are configured and initialized as GPIO--LEDs as outputs
@@ -131,18 +126,18 @@ EXTERNAL CIRCUITRY
 ------------------
 
    MSP430F5529 Pinout for Pins Used                List of Parts for 
- _____________________________________             _______________________________________________
-| Pin No. | Port | Description        |           | Label   |   PN    | Description | Connections |
-|---------|------|--------------------|           |---------|---------|-------------|
-| 1       | NA   | Vcc                |           |   R1    |    -    |   300 Ohm   |        
-| 2       | P1.0 | Feeds to Green LED |           |   R2    |    -    |   195 Ohm   |
-| 14      | P1.6 | Feeds to Red LED   |           |   R3    |    -    |   150 Ohm   |
-| 16      | ~RST | Feeds to Button    |           |  R4-6   |    -    |   100 kOhm  |
-| 20      | NA   | Vss                |           |   Q1    | 2N7000  |   N-MOS     |
-|_________|______|____________________|           |   Q2    | 2N7000  |   N-MOS     |
-                                                  |   Q3    | 2N7000  |   N-MOS     |
-                                                  | RGBLED  |    -    |   N-MOS     |
-                                                  |_________|_________|_____________|_____________
+ _____________________________________             ________________________________________________
+| Pin No. | Port | Description        |           | Label   |   PN    | Description  | Connections |
+|---------|------|--------------------|           |---------|---------|--------------|
+| 1       | NA   | Vcc                |           |   R1    |    -    |   300 Ohm    |        
+| 2       | P1.0 | Feeds to Green LED |           |   R2    |    -    |   195 Ohm    |
+| 14      | P1.6 | Feeds to Red LED   |           |   R3    |    -    |   150 Ohm    |
+| 16      | ~RST | Feeds to Button    |           |  R4-6   |    -    |   100 kOhm   |
+| 20      | NA   | Vss                |           |   Q1    | 2N7000  |    N-MOS     |
+|_________|______|____________________|           |   Q2    | 2N7000  |    N-MOS     |
+                                                  |   Q3    | 2N7000  |    N-MOS     |
+                                                  | RGBLED  |    -    |Common-Cathode|
+                                                  |_________|_________|______________|_____________
 
 Circuit Design
 - the follwing code must be added to disable GPIO power-on default Hi-Z mode to use the ports: PM5CTL0 &= ~LOCKLPM5;
