@@ -4,12 +4,11 @@ THIS README IS NOT FINISHED YET
 OVERVIEW
 --------
 
-[A couple sentences overviewing what this project is. Include: (i) what it does--change color brightness, link with other boards, 
-(ii) stranger things background (iii) what board it uses--MSP430F5529]
-
-Milestone 1 is a program that uses UART to control the color and intensity of an RGB LED. toggles an LED using a timer. Instead of using infinite loops to count, Timer A Blink outsource the
-counting to Timer A and uses an interrupt vector that triggers when The value in Timer A reaches a specified value. This allows the 
-processor to go into low-power in between toggling the LED.
+Milestone 1 is a program that uses the MSP430F5529 development board to receive, process, and transmit data via USB-pin or pin-to-pin.
+This data is used to light up an RGB LED external to the development board at a specific color combination and brightness.
+Additional data received (if any) can be transmitted via pin to another MSP430 device.
+This functionality is based on how the fictional character, Will Byers from STRANGER THINGS, communicated with his mother while using
+string lights.
 
 [Previews next sections: General Design, Initializations, Software PWM interrupts, UART interrupts, external circuitry]
 
@@ -57,14 +56,14 @@ Global Variables
 
 Setup Functions
 - void externalRGBLEDsetup() : configures the MSP430F5529 pins to interface with RGB LEDs external to the development board
-- void timerA0Setup()        : 
-- void UARTsetup()           :
+- void timerA0Setup()        : configures the pins to interface with the timer A0 peripheral to implement the software-PWM
+- void UARTsetup()           : sets up the UART interface
 
-Interrupt Vectors
-- TIMER0_A0_VECTOR
-- TIMER0_A1_VECTOR
-- USCI_A1_VECTOR
-- USCI_A0_VECTOR
+Interrupt Functions
+- void TIMER0_A0()        : interrupt service routine for Timer A0 CCR0 : turns the LEDs ON during the PWM-cycle
+- void TIMER0_A1_VECTOR() : interrupt service routine for Timer A0 CCR1 : turns the LEDs OFF during the PWM-cycle
+- void USCI_A1_VECTOR()   : USB-to-pin UART interrupt service routine   : determines how to process data received via USB
+- void USCI_A0_VECTOR()   : pin-to-pin UART interrupt service routine   : determines how to process data received via pin
 
 ***************************************************************************************************************************************
 INITIALIZATIONS
