@@ -10,18 +10,18 @@ Additional data received (if any) can be transmitted via pin to another MSP430 d
 This functionality is based on how the fictional character, Will Byers from STRANGER THINGS, communicated with his mother while using
 string lights.
 
-First, the specifications are discussed. Then 
-[Previews next sections: General Design, Initializations, Software PWM interrupts, UART interrupts, external circuitry]
-
-Specifications, General Design (global variables, functions, interrupts), Initializations, Software PWM interrupts, UART interrupts,
-external circuitry
+First, the specifications are discussed. Second, the MSP430F5529 Design is explained. Third, the initialization functions are detailed.
+Fourth, the Software-PWM interrupts are discussed. Fifth, the UART interrupts are explained. Finally, the external circuitry is
+detailed.
 
 ***************************************************************************************************************************************
 SPECIFICATIONS
 --------------
-[Discuss: (i) where info is coming from and what format it will be in; (ii) how the dev board should handle that information]
 
-
+This program is designed to take information in through USB or pin connection. The information originates from a software called
+"Realterm." The long string of information is sent in byte increments. The 1st byte received indicates how many more bytes are in the
+data package. The 2nd byte received indicates how bright to light up the red LED. The 3rd byte, the green LED; and the 4th byte, the
+blue LED. Additional bytes received get transmitted with no alterations. Below is a tabular representation of the functionality:
  _______________________________________________________________________________________________
 | Byte no. |                  Contents                  |                Example                |
 |----------|--------------------------------------------|---------------------------------------|
@@ -30,19 +30,13 @@ SPECIFICATIONS
 |__________|____________________________________________|_______________________________________|
 
 ***************************************************************************************************************************************
-GENERAL DESIGN
---------------
-
-[Discuss: (i) 
+MSP430F5529 DESIGN
+------------------
+ 
 In order to execute this program:
-- certain pins on each processor are routed to LEDs on the development board
-- these pins are configured and initialized as GPIO--LEDs as outputs
-- an interupt must be enabled on the positive edge of the button press
-- timer A capture control must be set to capture compare interrupt enable (CCIE)
-- timer A control configured using the Secondary Master Clock in continuous mode with an internal divider of 8
-- timer A capture control register 0 must be set to a value to count to 10,000 (decimal)
-- at the end of initialization, the processor must go into low-power mode
-- outside the main function, an interrupt vector must be declared, which toggles the LED
+- The MSP430F5529 must be set up properly
+- The PWM must occur through interrupts
+- UART must be configured and enabled and occur through interrupts as well
 
 Global Variables
 - i     : unsigned char : tracks how many bytes left to process for USB-to-pin UART interaction
@@ -65,20 +59,24 @@ INITIALIZATIONS
 ---------------
 
 externalRGBLEDsetup()
-- stuff
+- P1SEL is not explicitly initialized, but it is defaultly configured as GPIO 
+- Bits 2, 3, and 4 of P1DIR are set high, making P1.2, P1.3, and P1.4 outputs. (these pins are used to
+- P1.2 corresponds with the red LED, P1.3 with the green LED, and P1.4 the blue LED.
+- P2OUT is not explicitly initialized, but is set to 0 by default
 
 timerA0Setup()
-- stuff
+- Interrupts are enabled on TA0CCR0, TA0CCR1, TA0CCR2, and TA0CCR3
+- TA0CCRn for n between 0-4 represent the PWM-period, Red LED duty cycle, Green duty cycle, and Blue duty cycle respectively
+- Timer A0 is configured using SM clock, Up-mode, and no internal divider
+- TA0CCR0 is preset to 255, which the rest are preset to 0
 
 UARTsetup()
-- stuff
+- Bits 3 and 4 of P3SEL must be set high because P3.3 and P3.4 are for pin-to-pin UART transmit/receive
+- Bits 4 and 5 of P4SEL must be set high because P4.4 and P4.5 are for USB-to-pin UART transmit/receive
+- SM clock with 9600 Baud rate, and enable USCI_A0 and USCI_A1 interrupts
 
-- P1.0 is the pin routed to the LED (D1)
-- Bit 0 of P1SEL, P1DIR, and P1OUT are initialized accordingly
-- TACCL0 is set to CCIE, enabling an interrupt when the value in TA0R equals the value stored in TACCR0
-- after initialization, the processor goes to into low-power mode with the following code: _BIS_SR(LPM0_bits + GIE);
-- outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_A0_VECTOR
-- an interrupt function, which toggles P1.0 (D1) is defined with the following code: __interrupt void TIMER0_A0(void)
+After initialization, the processor enables global interrupts with the following code: _BIS_SR(GIE);
+Then, it waits in a while(1) loop.
 
 ***************************************************************************************************************************************
 SOFTWARE-PWM INTERRUPTS
@@ -87,7 +85,8 @@ SOFTWARE-PWM INTERRUPTS
 Blurb
 
 TIMER0_A0
-- stuff
+- outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_A0_VECTOR
+- an interrupt function, which toggles P1.0 (D1) is defined with the following code: __interrupt void TIMER0_A0(void)
 
 TIMER0_A1
 - stuff
