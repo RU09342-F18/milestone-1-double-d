@@ -82,23 +82,18 @@ Then, it waits in a while(1) loop.
 SOFTWARE-PWM INTERRUPTS
 -----------------------
 
-Blurb
-
 TIMER0_A0
 - outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_A0_VECTOR
-- an interrupt function, which toggles P1.0 (D1) is defined with the following code: __interrupt void TIMER0_A0(void)
+- an interrupt function which turns the LEDs on is defined with the following code: __interrupt void TIMER0_A0(void)
+- when this interrupt triggers, all external LEDs should turn on except of TA0CCRx equals 0
+- to implement this functionality, an three separate if-statements check to make sure each TA0CCRx register != 0 before turning ON
 
 TIMER0_A1
-- stuff
-
-
-- the follwing code must be added to disable GPIO power-on default Hi-Z mode to use the ports: PM5CTL0 &= ~LOCKLPM5;
-- P1.0 is the pin routed to the LED (LED1)
-- Bit 0 of P1SEL, P1DIR, and P1OUT are initialized accordingly
-- TBCCL0 is set to CCIE, enabling an interrupt when the value in TB0R equals the value stored in TBCCR0
-- after initialization, the processor goes to into low-power mode with the following code: _BIS_SR(LPM1_bits + GIE);
-- outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_B0_VECTOR
-- an interrupt function, which toggles P1.0 (KED1) is defined with the following code: __interrupt void TIMER0_B0(void)
+- outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_A1_VECTOR
+- an interrupt function which turns the LEDs on is defined with the following code: __interrupt void TIMER0_A1(void)
+- all TA0CCRx interrupts (for x = 2,3,4) trigger this vector
+- when this interrupt triggers, a switch statement is needed to determine the origin of the interrupt
+- the LED routed to the corresponding TA0CCRx is set low
 
 ***************************************************************************************************************************************
 UART INTERRUPTS
