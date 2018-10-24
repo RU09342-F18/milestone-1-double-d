@@ -99,21 +99,22 @@ TIMER0_A1
 UART INTERRUPTS
 ---------------
 
-Blurb
-
 USCI_A1_interrupt
-- stuff
+- this interrupt triggers when the MSP430F5529 receives data through USB connection
+- a switch statement based on the global variable, "state" is needed to determine how to process the incoming data
+- case 1 : the number of bytes in the incoming package
+- case 2 : the intensity of the red LED
+- case 3 : the intensity of the green LED
+- case 4 : the intensity of the blue LED
+- case 5 : data is passed along without any processing
+- global variable i is set in each case
 
 USCI_A0_interrupt
-- stuff
+- this interrupt triggers when the MSP430F5529 receives data through pin-to-pin connection
+- a switch statement based on the global variable, "state" is needed to determine how to process the incoming data
+- each case in USCI_A1_interrupt has almost identical functionality to USCI_A1_interrupt
+- global variable j is set in each case
 
-- the follwing code must be added to disable GPIO power-on default Hi-Z mode to use the ports: PM5CTL0 &= ~LOCKLPM5;
-- P1.0 is the pin routed to the LED (LED1)
-- Bit 0 of P1SEL, P1DIR, and P1OUT are initialized accordingly
-- TBCCL0 is set to CCIE, enabling an interrupt when the value in TB0R equals the value stored in TBCCR0
-- after initialization, the processor goes to into low-power mode with the following code: _BIS_SR(LPM1_bits + GIE);
-- outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_B0_VECTOR
-- an interrupt function, which toggles P1.0 (KED1) is defined with the following code: __interrupt void TIMER0_B0(void)
 
 ***************************************************************************************************************************************
 EXTERNAL CIRCUITRY
