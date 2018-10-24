@@ -1,5 +1,3 @@
-THIS README IS NOT FINISHED YET
-
 ***************************************************************************************************************************************
 OVERVIEW
 --------
@@ -115,32 +113,24 @@ USCI_A0_interrupt
 - each case in USCI_A1_interrupt has almost identical functionality to USCI_A1_interrupt
 - global variable j is set in each case
 
-
 ***************************************************************************************************************************************
 EXTERNAL CIRCUITRY
 ------------------
 
-   MSP430F5529 Pinout for Pins Used                List of Parts for 
- _____________________________________             ________________________________________________
-| Pin No. | Port | Description        |           | Label   |   PN    | Description  | Connections |
-|---------|------|--------------------|           |---------|---------|--------------|
-| 1       | NA   | Vcc                |           |   R1    |    -    |   300 Ohm    |        
-| 2       | P1.0 | Feeds to Green LED |           |   R2    |    -    |   195 Ohm    |
-| 14      | P1.6 | Feeds to Red LED   |           |   R3    |    -    |   150 Ohm    |
-| 16      | ~RST | Feeds to Button    |           |  R4-6   |    -    |   100 kOhm   |
-| 20      | NA   | Vss                |           |   Q1    | 2N7000  |    N-MOS     |
-|_________|______|____________________|           |   Q2    | 2N7000  |    N-MOS     |
-                                                  |   Q3    | 2N7000  |    N-MOS     |
-                                                  | RGBLED  |    -    |Common-Cathode|
-                                                  |_________|_________|______________|_____________
+The tables below show the connections to connect the MSP430 to an external circuit to light up the RGB LED:
 
-Circuit Design
-- the follwing code must be added to disable GPIO power-on default Hi-Z mode to use the ports: PM5CTL0 &= ~LOCKLPM5;
-- P1.0 is the pin routed to the LED (LED1)
-- Bit 0 of P1SEL, P1DIR, and P1OUT are initialized accordingly
-- TBCCL0 is set to CCIE, enabling an interrupt when the value in TB0R equals the value stored in TBCCR0
-- after initialization, the processor goes to into low-power mode with the following code: _BIS_SR(LPM1_bits + GIE);
-- outside the main function, an interrupt vector is defined with the following code: #pragma vector=TIMER0_B0_VECTOR
-- an interrupt function, which toggles P1.0 (KED1) is defined with the following code: __interrupt void TIMER0_B0(void)
+     MSP430F5529 Pinout for Pins Used                              List of Parts for the external circuitry
+ _________________________________________         _________________________________________________________________________
+| Pin No. | Port | Description            |       | Label   |   PN    | Description  |             Connections              |
+|---------|------|------------------------|       |---------|---------|--------------|--------------------------------------|
+|   18    |  NA  | Vcc (5 V)              |       |   R1    |    -    |   300 Ohm    | Cathode of Blue LED to Vcc           |
+|   19    |  NA  | Vss (Gnd)              |       |   R2    |    -    |   195 Ohm    | Cathode of Green LED to Vcc          |
+|   23    | P1.2 | Feeds to Red LED       |       |   R3    |    -    |   150 Ohm    | Cathode of Red LED to Vcc            |
+|   24    | P1.3 | Feeds to Green LED     |       |  R4-6   |    -    |   100 kOhm   | P1.2, P1.3, P1.4 to Gnd              |
+|   25    | P1.4 | Feeds to Blue LED      |       |   Q1    | 2N7000  |    N-MOS     | S: Gnd, G: P1.2, D: Cathode of LED   |
+|   40    | P3.3 | UCA0TXD to other board |       |   Q2    | 2N7000  |    N-MOS     | S: Gnd, G: P1.3, D: Cathode of LED   |
+|   41    | P3.4 | UCA0RXD to other board |       |   Q3    | 2N7000  |    N-MOS     | S: Gnd, G: P1.4, D: Cathode of LED   |
+|_________|______|________________________|       | RGBLED  |    -    | Common-Anode | A: Vcc, Red: R1, Green: R2, Blue: R3 |
+                                                  |_________|_________|______________|______________________________________|
 
 ***************************************************************************************************************************************
